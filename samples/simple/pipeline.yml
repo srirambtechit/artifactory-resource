@@ -1,13 +1,16 @@
 resource_types:
-  - name: artifactory-resource
-    type: docker-image
-    source: {repository: springio/artifactory-resource, tag: ${nextVersion}}
+- name: artifactory-resource
+  type: docker-image
+  source:
+    repository: springio/artifactory-resource
+    tag: 0.0.18-SNAPSHOT
+
 
 resources:
   - name: git-repo
     type: git
     source:
-      uri: https://github.com/spring-io/artifactory-resource
+      uri: https://github.com/srirambtechit/artifactory-resource.git
       branch: main
   - name: artifactory
     type: artifactory-resource
@@ -22,7 +25,27 @@ jobs:
     plan:
       - get: git-repo
       - task: build
-        file: git-repo/samples/simple/tasks/build.yml
+        # file: git-repo/samples/simple/tasks/build.yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: openjdk
+              tag: 8-jdk-alpine
+          inputs:
+          - name: git-repo
+          outputs:
+          - name: test
+          run:
+            path: sh
+            user: root
+            args:
+            - | 
+              -exc
+              echo "Hello"
+              ls -l
+            # path: git-repo/samples/simple/scripts/build.sh
       - put: artifactory
         params:
           repo: example-repo-local
